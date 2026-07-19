@@ -1,9 +1,14 @@
 from fastapi import FastAPI, Depends, HTTPException
-from sqlmodel import select, Session
+from sqlmodel import select, Session, SQLModel
 from models.book import Book, BookCreate, BookUpdate
-from database.session import get_session
+from database.session import get_session, engine
+
 
 app = FastAPI()
+
+@app.on_event("startup")
+def on_startup():
+    SQLModel.metadata.create_all(engine)
 
 @app.post("/books", response_model=Book)
 def create_book(book: BookCreate, session: Session = Depends(get_session)):
